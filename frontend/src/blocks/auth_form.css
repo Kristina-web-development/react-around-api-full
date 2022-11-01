@@ -1,0 +1,55 @@
+.auth_header {
+  text-align: center;
+  margin-top: 36px;
+  margin-bottom: 20px;
+}
+
+.form__input-auth {
+  color: #ffffff;
+  margin-top: 30px;
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 17px;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  border-bottom: 2px solid #cccccc;
+  width: 358px;
+  background-color: black;
+  padding-bottom: 10px;
+}
+
+::placeholder {
+  color: #cccccc;
+}
+
+.form__button-auth {
+  background: #ffffff;
+  margin-top: 216px;
+  border-radius: 2px;
+  color: #000000;
+  font-family: "Inter", sans-serif;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 22px;
+  border: none;
+  padding: 0;
+  min-height: 50.15px;
+  width: 358px;
+  transition: opacity 0.3s ease-in-out;
+  cursor: pointer;
+}
+
+.auth__footer-hint {
+  text-align: center;
+  max-width: 358px;
+}
+
+.auth__footer-hint:hover {
+  text-decoration: underline;
+  text-decoration-color: white;
+  cursor: pointer;
+}

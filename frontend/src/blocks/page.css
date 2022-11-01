@@ -1,0 +1,14 @@
+.page {
+    position: relative;
+    background: #000000;
+    margin: auto;
+    max-width: 100vw;
+    min-height: 100vh;
+    font-family: 'Inter', 'Arial', sans-serif;
+    color: #ffffff;
+}
+
+.page__container {
+    max-width: 1280px;
+    margin: 0 auto;
+}

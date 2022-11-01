@@ -1,0 +1,39 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 880px;
+  border-bottom: 1px solid rgb(84, 84, 84, 0.7);
+  margin: 0 auto;
+}
+
+.user_menu {
+  display: flex;
+  flex-direction: row;
+}
+
+.user_menu p {
+  padding-right: 24px;
+  color: #ffffff;
+}
+
+.user_menu div p {
+  cursor: pointer;
+  color: #a9a9a9;
+  padding: 0;
+}
+
+.header_hint p {
+  cursor: pointer;
+}
+
+.header_hint p:hover {
+  text-decoration-color: #ffffff;
+  text-decoration: underline;
+}
+
+@media screen and (max-width: 600px) {
+  .header {
+    max-width: 320px;
+  }
+}
