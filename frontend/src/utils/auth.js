@@ -1,4 +1,4 @@
-const baseURL = "https://register.nomoreparties.co";
+const baseURL = "https://api.kristina.students.nomoredomainssbs.ru";
 
 const _getResponseData = (res) => {
   if (!res.ok) {
@@ -7,11 +7,11 @@ const _getResponseData = (res) => {
   return res.json();
 };
 
-export const checkToken = async ({ userToken }) => {
+export const checkToken = async ({ token }) => {
   return await fetch(baseURL + "/users/me", {
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${userToken}`,
+      Authorization: `Bearer ${token}`,
     },
   }).then(_getResponseData);
 };
@@ -27,10 +27,10 @@ export const signIn = ({ email, password }) => {
   })
     .then(_getResponseData)
     .then((response) => {
-      if (response.token) {
-        localStorage.setItem("accessToken", response.token);
+      if (response.access_token) {
+        localStorage.setItem("jwt", response.access_token);
         localStorage.setItem("userEmail", email);
-        return response.token;
+        return response.access_token;
       }
     });
 };

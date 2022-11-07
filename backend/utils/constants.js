@@ -1,10 +1,12 @@
 const NOT_FOUND = 404;
 const SERVER_ERROR = 500;
 const BAD_REQUEST = 400;
+const FORBIDDEN = 403;
+
 
 const errorHandler = (res, err) => {
   let errName = err.name || '';
-
+  console.log(err)
   if (err.status === NOT_FOUND) {
     errName = 'NotFound';
   }
@@ -35,4 +37,4 @@ const errorHandler = (res, err) => {
   res.status(status).send({ message });
 };
 
-module.exports = { NOT_FOUND, BAD_REQUEST, errorHandler };
+module.exports = { NOT_FOUND,SERVER_ERROR, FORBIDDEN,  BAD_REQUEST, errorHandler };

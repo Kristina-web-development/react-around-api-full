@@ -1,7 +1,11 @@
 class Api {
-  constructor({ baseUrl, headers }) {
+  constructor({ baseUrl }) {
     this._baseUrl = baseUrl;
-    this._headers = headers;
+    this._token = localStorage.getItem("jwt");
+  }
+
+  _refreshToken() {
+    this._token = localStorage.getItem("jwt");
   }
 
   _getResponseData(res) {
@@ -12,15 +16,21 @@ class Api {
   }
 
   getUserInfo() {
-    return fetch(this._baseUrl + "/users/me", {
-      headers: this._headers,
+    return fetch(`${this._baseUrl}/users/me`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${this._token}`,
+      },
     }).then(this._getResponseData);
   }
 
   addUserAvatar(data) {
-    return fetch(this._baseUrl + "/users/me/avatar", {
+    return fetch(`${this._baseUrl}/users/me/avatar`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${this._token}`,
+      },
       method: "PATCH",
-      headers: this._headers,
       body: JSON.stringify({
         avatar: data.avatarLink,
       }),
@@ -28,9 +38,12 @@ class Api {
   }
 
   addUserInfo(data) {
-    return fetch(this._baseUrl + "/users/me", {
+    return fetch(`${this._baseUrl}/users/me`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${this._token}`,
+      },
       method: "PATCH",
-      headers: this._headers,
       body: JSON.stringify({
         name: data.name,
         about: data.about,
@@ -39,15 +52,21 @@ class Api {
   }
 
   getCards() {
-    return fetch(this._baseUrl + "/cards", {
-      headers: this._headers,
+    return fetch(`${this._baseUrl}/cards`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${this._token}`,
+      },
     }).then(this._getResponseData);
   }
 
   addCard(data) {
-    return fetch(this._baseUrl + "/cards", {
+    return fetch(`${this._baseUrl}/cards`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${this._token}`,
+      },
       method: "POST",
-      headers: this._headers,
       body: JSON.stringify({
         name: data.title,
         link: data.image,
@@ -56,23 +75,32 @@ class Api {
   }
 
   deleteCard(id) {
-    return fetch(this._baseUrl + "/cards/" + id, {
+    return fetch(`${this._baseUrl}/cards/${id}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${this._token}`,
+      },
       method: "DELETE",
-      headers: this._headers,
     }).then(this._getResponseData);
   }
 
   addLikeCard(id) {
     return fetch(this._baseUrl + "/cards/likes/" + id, {
       method: "PUT",
-      headers: this._headers,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${this._token}`,
+      },
     }).then(this._getResponseData);
   }
 
   removeLikeCard(id) {
     return fetch(this._baseUrl + "/cards/likes/" + id, {
       method: "DELETE",
-      headers: this._headers,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${this._token}`,
+      },
     }).then(this._getResponseData);
   }
 
@@ -86,11 +114,7 @@ class Api {
 }
 
 const api = new Api({
-  baseUrl: "https://around.nomoreparties.co/v1/cohort-3-en",
-  headers: {
-    Authorization: "cd2997d4-0d31-42a2-a383-a9a3b826db8e",
-    "Content-Type": "application/json",
-  },
+  baseUrl: "https://api.kristina.students.nomoredomainssbs.ru",
 });
 
 export default api;

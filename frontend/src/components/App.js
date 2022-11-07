@@ -28,17 +28,22 @@ function App() {
   const [cardForRemoval, setCardForRemoval] = useState({});
   const [selectedCard, setSelectedCard] = useState({});
   const [cards, setCards] = useState([]);
+  const [token, setToken] = useState(localStorage.getItem('jwt'));
   const history = useHistory();
 
-  function handleLoggedUser() {
-    const userToken = localStorage.getItem("accessToken");
+  
 
-    if(userToken){
-      checkToken({ userToken })
-      .then(() => {
+  function handleLoggedUser() {
+    const token = localStorage.getItem('jwt');
+    
+    if(token){
+      checkToken( {token} )
+      .then((userData) => {
+        console.log(token)
         setLoggedIn(true);
-        setCurrentUser({ ...currentUser });
-        history.push("/profile");
+        setToken(token)
+        setCurrentUser({ ...userData['data'] });
+        history.push('/profile');
       })
       .catch(() => {
         setLoggedIn(false);
@@ -48,15 +53,15 @@ function App() {
   }
 
   function handleCardLike(card) {
-    const isLiked = card.likes.some((user) => user._id === currentUser._id);
-
+    const isLiked = card.likes.find((user) => user === currentUser._id);
+  
     api
       .changeLikeCardStatus(card._id, isLiked)
       .then((res) => {
         setCards([
           ...cards.map((item) => {
             if (item._id === card._id) {
-              return res;
+              return res['card'];
             } else {
               return item;
             }
@@ -102,7 +107,7 @@ function App() {
     api
       .addCard(cardData)
       .then((res) => {
-        setCards([res, ...cards]);
+        setCards([res['data'], ...cards]);
         setIsAddNewPlacePopupOpen(false);
       })
       .catch((res) => {
@@ -118,7 +123,7 @@ function App() {
   function handleConfirmSubmit(e) {
     e.preventDefault();
     api
-      .deleteCard(cardForRemoval._id)
+      .deleteCard(cardForRemoval._id, token)
       .then(() => {
         setIsPopupWithConfirmationOpen(false);
         setCards([...cards.filter((card) => card._id !== cardForRemoval._id)]);
@@ -135,9 +140,10 @@ function App() {
     };
 
     api
-      .addUserAvatar(data)
+      .addUserAvatar(data, token)
       .then((res) => {
-        setCurrentUser({ ...currentUser, avatar: res.avatar });
+        console.log(res)
+        setCurrentUser({ ...currentUser, avatar: res['user'].avatar });
 
         setIsEditAvatarPopupOpen(false);
       })
@@ -153,9 +159,9 @@ function App() {
     };
 
     api
-      .addUserInfo(data)
+      .addUserInfo(data, token)
       .then((res) => {
-        setCurrentUser({ ...currentUser, name: res.name, about: res.about });
+        setCurrentUser({ ...currentUser, name: res['user'].name, about: res['user'].about });
 
         setIsEditProfilePopupOpen(false);
       })
@@ -165,24 +171,32 @@ function App() {
   }
 
   useEffect(() => {
-    api
+    if(loggedIn && token){
+
+      api._refreshToken()
+
+      api
       .getUserInfo()
       .then((res) => {
+        console.log(res)
         setCurrentUser({ ...currentUser, ...res });
       })
       .catch((res) => {
         console.log(`Error! + ${res.statusText}`);
       });
 
-    api
+      api
       .getCards()
-      .then((data) => {
-        setCards(data);
+      .then((response) => {
+        setCards(response['data']);
       })
       .catch((res) => {
         console.log(`Error! + ${res.statusText}`);
       });
-  }, []);
+
+
+    }
+  }, [token]);
 
   useEffect(() => {
     if (pendingAuth) {

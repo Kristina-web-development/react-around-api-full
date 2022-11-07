@@ -11,8 +11,8 @@ function Card({
   onCardLike,
 }) {
   const currentUser = useContext(CurrentUserContext);
-
-  const isLiked = likes.some((user) => user._id === currentUser._id);
+  
+  const isLiked = likes.some((user) => user === currentUser._id);
 
   function handleLikeClick() {
     onCardLike(card);
@@ -47,7 +47,7 @@ function Card({
           <p className="gallery__card-likes-counter">{likes.length}</p>
         </div>
       </div>
-      {card.owner._id === currentUser._id && (
+      {card.owner === currentUser._id && (
         <button
           type="button"
           className="gallery__delete-card"

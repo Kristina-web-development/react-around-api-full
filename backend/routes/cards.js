@@ -11,7 +11,7 @@ const {
 router.get('/', getCards);
 router.delete('/:cardId', deleteCard);
 router.post('/', createCard);
-router.put('/:cardId/likes', likeCard);
-router.delete('/:cardId/likes', unlikeCard);
+router.put('/likes/:cardId', likeCard);
+router.delete('/likes/:cardId', unlikeCard);
 
 module.exports = router;
