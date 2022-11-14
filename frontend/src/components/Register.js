@@ -3,12 +3,12 @@ import AuthorizationForm from "./AuthForm";
 import { signUp } from "../utils/auth";
 import { useHistory } from "react-router-dom";
 
-function Register() {
+function Register(callback) {
   const history = useHistory();
 
-  const callback = () => {
-    history.push("/signin");
-  };
+  // const callback = () => {
+  //   history.push("/signin");
+  // };
 
   return (
     <AuthorizationForm

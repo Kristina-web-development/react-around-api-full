@@ -13,7 +13,7 @@ import AddPlacePopup from "./AddPlacePopup";
 import Register from "./Register";
 import { Route, Switch, Redirect, useHistory } from "react-router-dom";
 import Login from "./Login";
-import { checkToken } from "../utils/auth";
+import { checkToken, signUp, signIn } from "../utils/auth";
 
 function App() {
   const [pendingAuth, setPendingAuth] = useState(true);
@@ -35,11 +35,9 @@ function App() {
 
   function handleLoggedUser() {
     const token = localStorage.getItem('jwt');
-    
     if(token){
-      checkToken( {token} )
+      checkToken( token )
       .then((userData) => {
-        console.log(token)
         setLoggedIn(true);
         setToken(token)
         setCurrentUser({ ...userData['data'] });
@@ -51,6 +49,82 @@ function App() {
       })
     }
   }
+
+  const handleLogin = (password, email) => {
+
+    signIn({email, password})
+    .then((response) => {
+      if (response.access_token) {
+        localStorage.setItem("jwt", response.access_token);
+        localStorage.setItem("userEmail", email);
+      }
+    })
+    .catch((err)=> {
+      console.log(err)
+    })
+
+    // authorize(password, email)
+    //   .then((user) => {
+    //     if (user.token) {
+    //       localStorage.setItem('jwt', user.token);
+    //       setIsLoggedIn(true);
+    //       setUserEmail(email);
+    //       setToken(user.token);
+    //       navigate('/');
+    //     }
+    //   })
+    //   .catch((err) => {
+    //     console.log(err);
+    //     setIsInfoToolTipPopupOpen(true);
+    //   });
+  };
+
+  const handleSignUp = (email, password) => {
+    
+    
+    signUp(email, password)
+    .then(() => {
+      history.push("/signin")
+    })
+    .catch((err) => {
+      console.log(err)
+    })
+    // register(email, password)
+    //   .then(() => {
+    //     setIsRegistered(true);
+    //     navigate('./signin');
+    //   })
+    //   .catch((err) => {
+    //     console.log(err);
+    //     setIsRegistered(false);
+    //   })
+    //   .finally(() => {
+    //     setIsInfoToolTipPopupOpen(true);
+    //   });
+  };
+
+  // useEffect(() => {
+  //   const token = localStorage.getItem('jwt');
+  //   if (token) {
+  //     validateToken(token)
+  //       .then((res) => {
+  //         setUserEmail(res.data.email);
+  //         setIsLoggedIn(true);
+  //         navigate('/');
+  //       })
+  //       .catch((err) => {
+  //         console.log(err);
+  //       });
+  //   }
+  // }, []);
+
+  // function handleLogout() {
+  //   localStorage.removeItem('jwt');
+  //   setUserEmail('');
+  //   setIsLoggedIn(false);
+  //   navigate('/signin');
+  // }
+
 
   function handleCardLike(card) {
     const isLiked = card.likes.find((user) => user === currentUser._id);
@@ -268,7 +342,7 @@ function App() {
               <Login onLogin={handleLoggedUser} />
             </Route>
             <Route path="/signup">
-              <Register onRegister={handleLoggedUser} />
+              <Register onRegister={handleSignUp} />
             </Route>
             <ProtectedRoute path="/profile" loggedIn={loggedIn}>
               <UserProfile />

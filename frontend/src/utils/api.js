@@ -21,6 +21,7 @@ class Api {
         "Content-Type": "application/json",
         Authorization: `Bearer ${this._token}`,
       },
+      method: "GET",
     }).then(this._getResponseData);
   }
 
@@ -114,7 +115,8 @@ class Api {
 }
 
 const api = new Api({
-  baseUrl: "https://api.kristina.students.nomoredomainssbs.ru",
+  // baseUrl: "https://api.kristina.students.nomoredomainssbs.ru",
+  baseUrl: "http://localhost:3000",
 });
 
 export default api;

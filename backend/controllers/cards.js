@@ -17,8 +17,8 @@ module.exports.createCard = (req, res) => {
   const { name, link } = req.body;
   const owner = req.user._id;
   Card.create({ name, link, owner })
-    .then((card) => res.send({ data: card }))    
-    .catch((err) => errorHandler(res, err))
+    .then((card) => res.send({ data: card }))
+    .catch((err) => errorHandler(res, err));
 };
 
 module.exports.deleteCard = (req, res) => {
@@ -34,14 +34,14 @@ module.exports.deleteCard = (req, res) => {
 
 module.exports.likeCard = (req, res) => {
   const userToken = jwt.decode(
-    req.headers.authorization.replace('Bearer ', '')
+    req.headers.authorization.replace('Bearer ', ''),
   );
-  const userId = userToken['_id'];
+  const userId = userToken._id;
 
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: userId } },
-    { new: true, runValidators: true }
+    { new: true, runValidators: true },
   )
     .orFail(() => {
       const error = new Error('Card not found');
@@ -54,13 +54,13 @@ module.exports.likeCard = (req, res) => {
 
 module.exports.unlikeCard = (req, res) => {
   const userToken = jwt.decode(
-    req.headers.authorization.replace('Bearer ', '')
+    req.headers.authorization.replace('Bearer ', ''),
   );
-  const userId = userToken['_id'];
+  const userId = userToken._id;
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: userId } },
-    { new: true, runValidators: true }
+    { new: true, runValidators: true },
   )
     .orFail(() => {
       const error = new Error('Card not found');
