@@ -1,4 +1,5 @@
 const baseURL = "https://api.kristina.students.nomoredomainssbs.ru";
+// const baseURL = "http://localhost:3000";
 
 const _getResponseData = (res) => {
   if (!res.ok) {
