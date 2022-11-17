@@ -39,7 +39,7 @@ function App() {
     if(token){
       checkToken( {token} )
       .then((userData) => {
-        console.log(token)
+    
         setLoggedIn(true);
         setToken(token)
         setCurrentUser({ ...userData['data'] });
@@ -171,6 +171,19 @@ function App() {
   }
 
   useEffect(() => {
+    if(loggedIn && cards.length < 1){
+      api
+        .getCards()
+        .then((response) => {
+          setCards(response['data']);
+        })
+        .catch((res) => {
+          console.log(`Error! + ${res.statusText}`);
+        });
+    }
+  },[cards,loggedIn])
+
+  useEffect(() => {
     if(loggedIn && token){
 
       api._refreshToken()
@@ -178,22 +191,22 @@ function App() {
       api
       .getUserInfo()
       .then((res) => {
-        console.log(res)
         setCurrentUser({ ...currentUser, ...res });
       })
       .catch((res) => {
         console.log(`Error! + ${res.statusText}`);
       });
-
-      api
-      .getCards()
-      .then((response) => {
-        setCards(response['data']);
-      })
-      .catch((res) => {
-        console.log(`Error! + ${res.statusText}`);
-      });
-
+      
+      
+        api
+        .getCards()
+        .then((response) => {
+          setCards(response['data']);
+        })
+        .catch((res) => {
+          console.log(`Error! + ${res.statusText}`);
+        });
+      
 
     }
   }, [token]);
