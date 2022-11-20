@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const {
-  SERVER_ERROR, FORBIDDEN, UNAUTHORIZED
+  ERRORS,
  } = require('../utils/constants');
  const { JWT_SECRET } = require('../utils/config');
 
@@ -11,9 +11,7 @@ module.exports = (req, res, next) => {
       next();
     } else {
       if (!authorization || !authorization.startsWith('Bearer ')) {
-            const error = new Error('Authorization Required');
-            error.status = UNAUTHORIZED;
-            throw error;
+            throw new ERRORS.AuthorizationError('Authorization Required');
       }
 
       const token = authorization.replace('Bearer ', '');
@@ -22,9 +20,7 @@ module.exports = (req, res, next) => {
       try {
         payload = jwt.verify(token, JWT_SECRET);
       } catch (err) {
-            const error = new Error('Authorization Required');
-            error.status = UNAUTHORIZED;
-            throw error;
+          throw new ERRORS.AuthorizationError('Authorization Required');
       }
 
       req.user = payload; // assigning the payload to the request object
@@ -32,8 +28,6 @@ module.exports = (req, res, next) => {
       next(); // sending the request to the next middleware
     }
   } catch (err) {
-            const error = new Error('Server error');
-            error.status = SERVER_ERROR;
-            throw error;
+    throw new ERRORS.ServerError('Server Error');
   }
 };

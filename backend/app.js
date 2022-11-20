@@ -9,11 +9,11 @@ const helmet = require('helmet');
 const { celebrate, Joi } = require('celebrate');
 const cardsRoute = require('./routes/cards');
 const userRoute = require('./routes/users');
-const {login, createUser} = require('./controllers/users');
+const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 
 const serverErrorHandler = require('./middlewares/servererror');
-const { requestLogger, errorLogger } = require('./middlewares/logger'); 
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 const { validateLink, ERRORS } = require('./utils/constants');
 
 const { PORT = 3000 } = process.env;
@@ -23,8 +23,7 @@ mongoose.connect('mongodb://localhost:27017/aroundb', {
   useNewUrlParser: true,
 });
 app.use(cors());
-app.options('*',cors());
-
+app.options('*', cors());
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -37,14 +36,12 @@ app.use(auth);
 app.use('/users', userRoute);
 app.use('/cards', cardsRoute);
 
-
 app.post('/signin', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().required().min(8),
   }),
-}),login);
-
+}), login);
 
 app.post('/signup', celebrate({
   body: Joi.object().keys({
@@ -54,13 +51,13 @@ app.post('/signup', celebrate({
     about: Joi.string().min(2).max(30),
     avatar: Joi.string().custom(validateLink),
   }),
-}), createUser); 
+}), createUser);
 
-app.use('*', (req, res) => {
+app.use('*', () => {
   throw new ERRORS.NotFoundError('Requested resource not found');
 });
 
-app.use(errors())
+app.use(errors());
 app.use(serverErrorHandler);
 app.listen(PORT, () => {
   console.log(`App listening at port ${PORT}`);
