@@ -1,12 +1,12 @@
 const jwt = require('jsonwebtoken');
 const Card = require('../models/card');
-const { NOT_FOUND, errorHandler } = require('../utils/constants');
+const { errorHandler, getUserIdFromToken, ERRORS } = require('../utils/constants');
 
 module.exports.getCards = (req, res) => {
   Card.find({})
     .then((cards) => {
       if (cards === null) {
-        res.status(NOT_FOUND).send({ message: 'No cards found' });
+        throw new ERRORS.NotFoundError("No cards Found")
       }
       res.send({ data: cards });
     })
@@ -22,11 +22,15 @@ module.exports.createCard = (req, res) => {
 };
 
 module.exports.deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params.cardId)
+
+
+  Card.findOneAndDelete({_id: req.params.cardId, owner: getUserIdFromToken(req)})
     .orFail(() => {
-      const error = new Error('Card is not found');
-      error.status = NOT_FOUND;
-      throw error;
+      /** From reviewer comment it is said that i need to return 403 in case 
+       *  When a user tries to delete card that he doesn't own
+       */
+
+      throw new ERRORS.NotAllowedError('Card is not found or you are not the card owner')
     })
     .then(() => res.send({ message: 'Card is deleted' }))
     .catch((err) => errorHandler(res, err));
@@ -44,9 +48,7 @@ module.exports.likeCard = (req, res) => {
     { new: true, runValidators: true }
   )
     .orFail(() => {
-      const error = new Error('Card not found');
-      error.statusCode = NOT_FOUND;
-      throw error;
+      throw new ERRORS.NotFoundError('Card not found')
     })
     .then((card) => res.send({ card }))
     .catch((err) => errorHandler(res, err));
@@ -63,9 +65,7 @@ module.exports.unlikeCard = (req, res) => {
     { new: true, runValidators: true }
   )
     .orFail(() => {
-      const error = new Error('Card not found');
-      error.statusCode = NOT_FOUND;
-      throw error;
+      throw new ERRORS.NotFoundError('Card not found')
     })
     .then((card) => res.send({ card }))
     .catch((err) => errorHandler(res, err));

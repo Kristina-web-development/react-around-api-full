@@ -1,5 +1,5 @@
 const User = require('../models/user');
-const { NOT_FOUND, BAD_REQUEST, errorHandler, UNAUTHORIZED } = require('../utils/constants');
+const { ERRORS, errorHandler, getUserIdFromToken } = require('../utils/constants');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const {JWT_SECRET} = require('../utils/config');
@@ -9,7 +9,7 @@ module.exports.getUsers = (req, res) => {
   User.find({})
     .then((users) => {
       if (users === null) {
-        res.status(NOT_FOUND).send({ message: 'No users found' });
+        throw new ERRORS.NotFoundError('No users found')
       }
       res.send({ data: users });
     })
@@ -18,11 +18,10 @@ module.exports.getUsers = (req, res) => {
 
 module.exports.me = (req, res) => {
 
+  
   User.findById(req.user._id)
   .orFail(() => {
-    const error = new Error('User not found');
-    error.status = NOT_FOUND;
-    throw error;
+    throw new ERRORS.NotFoundError('User not found')
   })
   .then((user) => res.send({ data: user }))
   .catch((err) => errorHandler(res, err));
@@ -30,14 +29,11 @@ module.exports.me = (req, res) => {
 
 // the getUser request handler
 module.exports.getUser = (req, res) => {
-  
-  const userToken = jwt.decode(req.headers.authorization.replace('Bearer ',''))
-  console.log(userToken)
-  User.findById(userToken['_id'])
+
+
+  User.findById(getUserIdFromToken(req))
     .orFail(() => {
-      const error = new Error('User not found');
-      error.status = NOT_FOUND;
-      throw error;
+      throw new ERRORS.NotFoundError('User not found')
     })
     .then((user) => res.send({ data: user }))
     .catch((err) => errorHandler(res, err));
@@ -48,24 +44,36 @@ module.exports.createUser = (req, res) => {
   const {
  name, about, avatar, password, email,
 } = req.body;
-bcrypt.hash(password, 10).then((hash) => {
-  User.create({
-    name,
-    about,
-    avatar,
-    password:hash,
-    email,
-  })
-    .then((user) => res.send({ data: user }))
-    .catch((err) => errorHandler(res, err));
-});
+
+User.findOne({email})
+.then((user) => {
+  if(user === null){
+    bcrypt.hash(password, 10).then((hash) => {
+      User.create({
+        name,
+        about,
+        avatar,
+        password:hash,
+        email,
+      })
+        .then((user) => {
+          user['password'] = 'Hidden'
+          res.send({ data: user })})
+        .catch((err) => errorHandler(res, err));
+    });
+  }else{
+    throw new ERRORS.AlreadyExistsError('User with this email already exists')
+  }
+}).catch((err) => errorHandler(res, err))
+
+
 }
 
 module.exports.updateProfile = (req, res) => {
   const { name, about } = req.body;
 
   if (!name || !about) {
-    res.status(BAD_REQUEST).send({ message: 'Missing required parameter' });
+     throw new ERRORS.CastError('Validatoin Error: Missing required parameter [name, about]')
   }
 
   User.findByIdAndUpdate(
@@ -74,9 +82,7 @@ module.exports.updateProfile = (req, res) => {
     { new: true, runValidators: true },
   )
     .orFail(() => {
-      const error = new Error('User not found');
-      error.status = NOT_FOUND;
-      throw error;
+      throw new ERRORS.NotFoundError('User not found')
     })
     .then((user) => res.status(200).send({ user }))
     .catch((err) => errorHandler(res, err));
@@ -86,7 +92,7 @@ module.exports.updateAvatar = (req, res) => {
   const { avatar } = req.body;
 
   if (!avatar) {
-    res.status(BAD_REQUEST).send({ message: 'Check avatar link' });
+    throw new ERRORS.CastError("Validation error. email can't be empty")
   }
 
   User.findByIdAndUpdate(
@@ -109,18 +115,14 @@ module.exports.login = (req, res) => {
   User.findOne({ email })
     .select('+password')
     .orFail(() => {
-      const error = new Error('User not found');
-      error.status = NOT_FOUND;
-      throw error;
+      throw new ERRORS.NotFoundError('User not found')
     })
     .then((user) => {
       bcrypt
         .compare(password, user.password)
         .then((match) => {
           if (!match) {
-            const error = new Error('Incorrect email or password.');
-            error.status = UNAUTHORIZED;
-            throw error;
+            throw new ERRORS.AuthorizationError('Incorrect email or password.')
           }
           const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
             expiresIn: '7d',
@@ -128,5 +130,6 @@ module.exports.login = (req, res) => {
           res.send({ access_token: token });
         })
         .catch((err) => errorHandler(res, err));
-    });
+    })
+    .catch((err) => errorHandler(res, err))
 };

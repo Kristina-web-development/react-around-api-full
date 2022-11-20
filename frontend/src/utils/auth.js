@@ -8,8 +8,8 @@ const _getResponseData = (res) => {
   return res.json();
 };
 
-export const checkToken = async ({ token }) => {
-  return await fetch(baseURL + "/users/me", {
+export const checkToken =  ({ token }) => {
+  return fetch(baseURL + "/users/me", {
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
