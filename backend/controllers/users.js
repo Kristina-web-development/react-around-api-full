@@ -20,7 +20,7 @@ module.exports.getUsers = (req, res, next) => {
 };
 
 module.exports.me = (req, res, next) => {
-  User.findById(req.user._id)
+  User.findById(getUserIdFromToken(req))
     .orFail(() => {
       throw new ERRORS.NotFoundError('User not found');
     })
@@ -32,7 +32,7 @@ module.exports.me = (req, res, next) => {
 module.exports.getUser = (req, res, next) => {
   User.findById(getUserIdFromToken(req))
     .orFail(() => {
-      throw new ERRORS.NotFoundError('User not found');
+      throw new ERRORS.NotFoundError('User not found')
     })
     .then((user) => res.send({ data: user }))
     .catch(next);
