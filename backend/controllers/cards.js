@@ -1,12 +1,11 @@
 const jwt = require('jsonwebtoken');
 const Card = require('../models/card');
 const {
-  errorHandler,
   getUserIdFromToken,
   ERRORS,
 } = require('../utils/constants');
 
-module.exports.getCards = (req, res) => {
+module.exports.getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => {
       if (cards === null) {
@@ -14,18 +13,22 @@ module.exports.getCards = (req, res) => {
       }
       res.send({ data: cards });
     })
-    .catch((err) => errorHandler(res, err));
+    .catch(next);
 };
 
-module.exports.createCard = (req, res) => {
+module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
-  const owner = req.user._id;
+
+  const owner = getUserIdFromToken(req)
+
   Card.create({ name, link, owner })
     .then((card) => res.send({ data: card }))
-    .catch((err) => errorHandler(res, err));
+    .catch(next);
 };
 
-module.exports.deleteCard = (req, res) => {
+module.exports.deleteCard = (req, res, next) => {
+
+  
   Card.findOneAndDelete({
     _id: req.params.cardId,
     owner: getUserIdFromToken(req),
@@ -40,10 +43,10 @@ module.exports.deleteCard = (req, res) => {
       );
     })
     .then(() => res.send({ message: 'Card is deleted' }))
-    .catch((err) => errorHandler(res, err));
+    .catch(next);
 };
 
-module.exports.likeCard = (req, res) => {
+module.exports.likeCard = (req, res, next) => {
   const userToken = jwt.decode(
     req.headers.authorization.replace('Bearer ', ''),
   );
@@ -58,10 +61,10 @@ module.exports.likeCard = (req, res) => {
       throw new ERRORS.NotFoundError('Card not found');
     })
     .then((card) => res.send({ card }))
-    .catch((err) => errorHandler(res, err));
+    .catch(next);
 };
 
-module.exports.unlikeCard = (req, res) => {
+module.exports.unlikeCard = (req, res, next) => {
   const userToken = jwt.decode(
     req.headers.authorization.replace('Bearer ', ''),
   );
@@ -75,5 +78,5 @@ module.exports.unlikeCard = (req, res) => {
       throw new ERRORS.NotFoundError('Card not found');
     })
     .then((card) => res.send({ card }))
-    .catch((err) => errorHandler(res, err));
+    .catch(next);
 };

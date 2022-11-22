@@ -11,7 +11,8 @@ module.exports = (req, res, next) => {
       next();
     } else {
       if (!authorization || !authorization.startsWith('Bearer ')) {
-            throw new ERRORS.AuthorizationError('Authorization Required');
+            next(new ERRORS.AuthorizationError('Authorization Required'));
+            return
       }
 
       const token = authorization.replace('Bearer ', '');
@@ -20,7 +21,8 @@ module.exports = (req, res, next) => {
       try {
         payload = jwt.verify(token, JWT_SECRET);
       } catch (err) {
-          throw new ERRORS.AuthorizationError('Authorization Required');
+        next(new ERRORS.AuthorizationError('Authorization Required'));
+        return
       }
 
       req.user = payload; // assigning the payload to the request object
@@ -28,6 +30,7 @@ module.exports = (req, res, next) => {
       next(); // sending the request to the next middleware
     }
   } catch (err) {
-    throw new ERRORS.ServerError('Server Error');
+     next(new ERRORS.ServerError('Server Error'))
+     return
   }
 };

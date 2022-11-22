@@ -3,13 +3,12 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 const {
   ERRORS,
-  errorHandler,
   getUserIdFromToken,
 } = require('../utils/constants');
 const { JWT_SECRET } = require('../utils/config');
 
 // all users
-module.exports.getUsers = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => {
       if (users === null) {
@@ -17,30 +16,30 @@ module.exports.getUsers = (req, res) => {
       }
       res.send({ data: users });
     })
-    .catch((err) => errorHandler(res, err));
+    .catch(next);
 };
 
-module.exports.me = (req, res) => {
+module.exports.me = (req, res, next) => {
   User.findById(req.user._id)
     .orFail(() => {
       throw new ERRORS.NotFoundError('User not found');
     })
     .then((user) => res.send({ data: user }))
-    .catch((err) => errorHandler(res, err));
+    .catch(next);
 };
 
 // the getUser request handler
-module.exports.getUser = (req, res) => {
+module.exports.getUser = (req, res, next) => {
   User.findById(getUserIdFromToken(req))
     .orFail(() => {
       throw new ERRORS.NotFoundError('User not found');
     })
     .then((user) => res.send({ data: user }))
-    .catch((err) => errorHandler(res, err));
+    .catch(next);
 };
 
 // the createUser request handler
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const {
  name, about, avatar, password, email,
 } = req.body;
@@ -60,7 +59,7 @@ module.exports.createUser = (req, res) => {
               newUser.password = 'Hidden';
               res.send({ data: newUser });
             })
-            .catch((err) => errorHandler(res, err));
+            .catch(next);
         });
       } else {
         throw new ERRORS.AlreadyExistsError(
@@ -68,10 +67,10 @@ module.exports.createUser = (req, res) => {
         );
       }
     })
-    .catch((err) => errorHandler(res, err));
+    .catch(next);
 };
 
-module.exports.updateProfile = (req, res) => {
+module.exports.updateProfile = (req, res, next) => {
   const { name, about } = req.body;
 
   if (!name || !about) {
@@ -89,10 +88,10 @@ module.exports.updateProfile = (req, res) => {
       throw new ERRORS.NotFoundError('User not found');
     })
     .then((user) => res.status(200).send({ user }))
-    .catch((err) => errorHandler(res, err));
+    .catch(next);
 };
 
-module.exports.updateAvatar = (req, res) => {
+module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
 
   if (!avatar) {
@@ -108,10 +107,10 @@ module.exports.updateAvatar = (req, res) => {
       throw new ERRORS.NotFoundError('User not found');
     })
     .then((user) => res.status(200).send({ user }))
-    .catch((err) => errorHandler(res, err));
+    .catch(next);
 };
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
   User.findOne({ email })
@@ -131,7 +130,7 @@ module.exports.login = (req, res) => {
           });
           res.send({ access_token: token });
         })
-        .catch((err) => errorHandler(res, err));
+        .catch(next);
     })
-    .catch((err) => errorHandler(res, err));
+    .catch(next);
 };
