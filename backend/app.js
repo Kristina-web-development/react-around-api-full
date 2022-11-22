@@ -19,7 +19,9 @@ const app = express();
 mongoose.connect('mongodb://localhost:27017/aroundb', {
   useNewUrlParser: true,
 });
-app.use('*',cors());
+app.use(cors());
+app.options('*',cors({methods:['POST','PUT','OPTIONS','GET','DELETE']}))
+
 app.use(express.json());
 app.use(requestLogger);
 
