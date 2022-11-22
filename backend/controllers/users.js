@@ -80,7 +80,7 @@ module.exports.updateProfile = (req, res, next) => {
   }
 
   User.findByIdAndUpdate(
-    req.user._id,
+    getUserIdFromToken(req),
     { name, about },
     { new: true, runValidators: true },
   )
@@ -99,7 +99,7 @@ module.exports.updateAvatar = (req, res, next) => {
   }
 
   User.findByIdAndUpdate(
-    req.user._id,
+    getUserIdFromToken(req),
     { avatar },
     { new: true, runValidators: true },
   )
